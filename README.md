@@ -4,7 +4,7 @@ This is a binary sentiment classification project on the IMDB 50K movie reviews 
 in three versions, each one improving on the last: starting with classic TF-IDF features and a Linear
 SVM, then moving to a fine-tuned DistilBERT, and finally a fine-tuned RoBERTa.
 
-My best model is the RoBERTa version (V3), which reaches an F1 of 0.9581 and gets the error rate
+The best model is the RoBERTa version (V3), which reaches an F1 of 0.9581 and gets the error rate
 down to 4.22%.
 
 ---
