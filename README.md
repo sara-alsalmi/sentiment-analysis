@@ -1,11 +1,12 @@
 # Movie Review Sentiment Analysis
 
-This is a binary sentiment classification project on the IMDB 50K movie reviews dataset. I built it
-in three versions, each one improving on the last: starting with classic TF-IDF features and a Linear
-SVM, then moving to a fine-tuned DistilBERT, and finally a fine-tuned RoBERTa.
+This project addresses binary sentiment classification on the IMDB 50K movie reviews dataset. The
+work is organized into three progressive versions, each building upon the previous: beginning with
+classical TF-IDF features and a Linear SVM, advancing to a fine-tuned DistilBERT, and culminating
+in a fine-tuned RoBERTa model.
 
-The best model is the RoBERTa version (V3), which reaches an F1 of 0.9581 and gets the error rate
-down to 4.22%.
+The best-performing model is the RoBERTa variant (V3), which achieves an F1 score of 0.9581 and
+reduces the error rate to 4.22%.
 
 ---
 
@@ -17,8 +18,8 @@ down to 4.22%.
 | V2 | DistilBERT fine-tuned (3 epochs) | 0.9218 | 0.9224 | 7.82% |
 | V3 | RoBERTa-base fine-tuned (4 epochs, max_len=512) | **0.9578** | **0.9581** | **4.22%** |
 
-Each version is a clear step up. Going from the TF-IDF baseline to RoBERTa more than halved the
-number of misclassified reviews on the 10,000-review test set.
+Each version represents a measurable improvement over the prior. Moving from the TF-IDF baseline to
+RoBERTa more than halved the number of misclassified reviews on the 10,000-review test set.
 
 ![Model progression across V1, V2, and V3](images/08_version_comparison.png)
 
@@ -34,14 +35,14 @@ Accuracy, precision, recall, and F1 all climb steadily from V1 to V3.
 - A perfectly balanced binary task, so accuracy is a meaningful headline metric
 - Two columns: `review` (raw text) and `sentiment` (`positive` / `negative`)
 
-The dataset is exactly balanced, so I didn't need to do any class rebalancing before training.
+The dataset is exactly balanced, so no class rebalancing was required prior to training.
 
 ---
 
 ## Exploratory Data Analysis
 
-Before modeling I spent some time looking at how the reviews are structured and what actually
-separates the two classes.
+Prior to modeling, an exploratory analysis was conducted to examine the structure of the reviews
+and the linguistic features that distinguish the two classes.
 
 **Review length.** Most reviews are between roughly 100 and 300 words, with a long tail of very
 detailed ones. Positive and negative reviews have almost identical length distributions, so the
@@ -52,9 +53,9 @@ length of a review on its own doesn't tell you much about its sentiment.
 `great`, `good`, and `story` rank high in positive reviews, while `bad` and `even` stand out in
 negative ones. That's the kind of signal the models end up learning to weight.
 
-For the model preprocessing I remove HTML tags, lowercase everything, and strip stopwords, but I
-keep negation words like `not`, `never`, and `didn't` on purpose. A default stopword list would throw
-those away, and they're exactly the words that flip a review's sentiment.
+For preprocessing, HTML tags are removed, text is lowercased, and stopwords are stripped; however,
+negation words such as `not`, `never`, and `didn't` are deliberately retained. A default stopword
+list would discard these terms, yet they are precisely the words that invert a review's sentiment.
 
 ---
 
@@ -77,19 +78,18 @@ is both the weakest and the slowest to train here, which makes sense given how s
 
 ![V1 model comparison](images/04_v1_model_comparison.png)
 
-I picked Linear SVM as the V1 model since it edges out Logistic Regression on every metric.
+Linear SVM was selected as the V1 model, as it outperforms Logistic Regression on every reported metric.
 
-**Error analysis.** Out of the 10,000 test reviews, the SVM gets about 868 wrong, and those errors
-split fairly evenly between false positives and false negatives. So the model isn't leaning toward
-one class over the other.
+**Error analysis.** Of the 10,000 test reviews, the SVM misclassifies approximately 868, with errors
+distributed near-evenly between false positives and false negatives, indicating no systematic bias
+toward either class.
 
 ---
 
 ## V2 — DistilBERT Fine-Tuning
 
-For V2 I dropped the hand-built TF-IDF features and fine-tuned a `distilbert-base-uncased`
-transformer (66M parameters) instead, letting it learn contextual representations straight from the
-text.
+V2 replaces the hand-crafted TF-IDF features with a fine-tuned `distilbert-base-uncased` transformer
+(66M parameters), allowing the model to learn contextual representations directly from raw text.
 
 Training setup: 3 epochs, `lr=2e-5`, `max_length=256`, batch size 32 on a Tesla T4 GPU (~27 minutes).
 
@@ -117,8 +117,8 @@ The training loss converged to 0.258, compared with 0.411 in V2.
 
 ![RoBERTa confusion matrix](images/07_v3_roberta_confusion.png)
 
-RoBERTa only makes 422 errors on the 10,000-review test set, down from 782 in V2 and 868 in V1. This
-is the best model in the project and the one I use for inference.
+RoBERTa produces only 422 errors on the 10,000-review test set, down from 782 in V2 and 868 in V1.
+This constitutes the best-performing model in the project and is used for inference.
 
 ---
 
@@ -152,14 +152,14 @@ pip install -r requirements.txt
 python -c "import nltk; nltk.download('stopwords')"
 ```
 
-The notebooks run end to end, and V2 and V3 need a GPU to train in a reasonable time.
+The notebooks are designed to run end to end; V2 and V3 require a GPU to complete training within a reasonable timeframe.
 
 ---
 
 ## Inference
 
-Inference uses the V3 RoBERTa model. After training `sentiment_analysis_v3.ipynb`, extract the
-exported model into `models/v3/`, then:
+Inference is performed using the V3 RoBERTa model. After training `sentiment_analysis_v3.ipynb`,
+extract the exported model into `models/v3/`, then run:
 
 ```bash
 # Single review
